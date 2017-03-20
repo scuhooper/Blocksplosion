@@ -17,7 +17,9 @@ public class ChangeColor : MonoBehaviour {
 	{
 		while ( true )
 		{
-			GetComponent<SpriteRenderer>().color = Random.ColorHSV( 0.2f, 1, 0.2f, 1, 0.2f, 1, 1, 1 );
+			Color newColor = Random.ColorHSV( 0, 1, 0.5f, 1, 1, 1, 1, 1 ); ;
+			GetComponent<SpriteRenderer>().color = newColor;
+			GetComponentInChildren<TextMesh>().color = newColor;
 			yield return new WaitForSeconds( 1 );
 		}
 	}
