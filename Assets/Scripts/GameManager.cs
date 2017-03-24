@@ -1,13 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 	public int roundNumber = 1;
 	int numberOfBalls = 1;
-	Vector2 ballLaunchPosition;
+	Vector2 ballLaunchPosition = new Vector2( 0, -3.15f );
 	int numberOfBallsCollected;
 	int totalBalls;
+
+	Vector2 touchStart;
+	Vector2 touchEnd;
+
+	TouchPhase tp;
 
 	public GameObject[] blocks;
 	public GameObject extraBallPickup;
@@ -31,17 +37,31 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if ( numberOfBallsCollected == totalBalls )
-		{
-			// end current round and start new round
-			EndRound();
-			StartRound();
-		}
-
 		if ( Input.GetMouseButtonDown( 0 ) )
 		{
 			EndRound();
 			StartRound();
+		}
+		if ( Input.touches.Length > 0 )
+		{
+			if ( Input.touches[ 0 ].phase == TouchPhase.Began )
+				touchStart = Input.touches[ 0 ].rawPosition;
+			else if ( Input.touches[ 0 ].phase == TouchPhase.Ended )
+				touchEnd = Input.touches[ 0 ].rawPosition;
+			else if ( Input.touches[ 0 ].phase == TouchPhase.Moved || Input.touches[ 0 ].phase == TouchPhase.Stationary )
+			{
+				touchEnd = Input.touches[ 0 ].rawPosition;
+				Vector2 direction = touchEnd - touchStart;
+				direction.Normalize();
+				if ( direction.y > .2f )
+				{
+					LineRenderer line = new LineRenderer();
+					line.SetPosition( 0, touchStart );
+					line.SetPosition( 1, touchStart + direction * 4 );
+					line.startColor = Color.white;
+					line.endColor = Color.white;
+				}
+			}
 		}
 	}
 
@@ -52,11 +72,25 @@ public class GameManager : MonoBehaviour {
 
 	private void OnTriggerEnter2D( Collider2D collision )
 	{
-		if(numberOfBallsCollected == 0)
-			ballLaunchPosition = collision.transform.position;
+		if ( collision.gameObject.tag == "Ball" )
+		{
+			if ( numberOfBallsCollected == 0 )
+				ballLaunchPosition = collision.transform.position;
 
-		numberOfBallsCollected++;
-		Destroy( collision.gameObject );
+			numberOfBallsCollected++;
+			Destroy( collision.gameObject );
+		}
+		else if ( collision.gameObject.tag == "Pickup" )
+			Destroy( collision.gameObject );
+		else if ( collision.gameObject.tag == "Block" )
+			EndGame();
+
+		if ( numberOfBallsCollected == totalBalls )
+		{
+			// end current round and start new round
+			EndRound();
+			StartRound();
+		}
 	}
 
 	void StartRound()
@@ -69,11 +103,14 @@ public class GameManager : MonoBehaviour {
 	{
 		numberOfBallsCollected = 0;
 		roundNumber++;
+
 		Block[] survivingBlocks = FindObjectsOfType<Block>();
 		foreach ( Block b in survivingBlocks )
-		{
 			b.LowerBlock();
-		}
+
+		Pickup[] survivingPickups = FindObjectsOfType<Pickup>();
+		foreach ( Pickup p in survivingPickups )
+			p.LowerPickup();
 	}
 
 	void SetupNextRowOfBlocks()
@@ -87,17 +124,22 @@ public class GameManager : MonoBehaviour {
 			else
 			{
 				float rand = Random.Range( 0f, 1f );
-				if ( rand < .5 )
+				if ( rand < .3f )
 					Instantiate( blocks[ 0 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if(rand<.6)
+				else if( rand < .35f )
 					Instantiate( blocks[ 1 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if(rand<.7)
+				else if( rand < .4f )
 					Instantiate( blocks[ 2 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if(rand<.8)
+				else if( rand < .45f )
 					Instantiate( blocks[ 3 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if(rand<.9)
+				else if( rand < .5f )
 					Instantiate( blocks[ 4 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
 			}
 		}
+	}
+
+	void EndGame()
+	{
+		SceneManager.LoadScene( "GameScene" );
 	}
 }

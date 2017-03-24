@@ -59,6 +59,10 @@ public class Block : MonoBehaviour {
 		while ( transform.position.y > newY )
 		{
 			transform.position = new Vector2( transform.position.x, transform.position.y - moveY );
+			if ( transform.position.y < newY )
+			{
+				transform.position = new Vector2( transform.position.x, newY );
+			}
 			yield return null;
 		}
 	}
