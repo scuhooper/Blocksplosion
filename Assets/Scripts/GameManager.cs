@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour {
 	public GameObject ball;
 	public GameObject[] blocks;
 	public GameObject extraBallPickup;
+	public GameObject topBorder;
 
 	float[] rowPositions = new float[8];
 	float topRowY = 2.45f;
@@ -45,6 +46,10 @@ public class GameManager : MonoBehaviour {
 		line.enabled = false;
 
 		bIsRoundActive = false;
+
+		Color newColor = Random.ColorHSV( 0, 1, 0.5f, 1, 1, 1, 1, 1 ); ;
+		topBorder.GetComponent<SpriteRenderer>().color = newColor;
+		topBorder.GetComponentInChildren<TextMesh>().text = roundNumber.ToString();
 	}
 
 	// Update is called once per frame
@@ -134,7 +139,11 @@ public class GameManager : MonoBehaviour {
 		if ( collision.gameObject.tag == "Ball" )
 		{
 			if ( numberOfBallsCollected == 0 )
+			{
 				ballLaunchPosition = collision.transform.position;
+				ballLaunchPosition.y = -3.15f;
+				ballLaunchPosition.z = -1f;
+			}
 
 			numberOfBallsCollected++;
 			Destroy( collision.gameObject );
@@ -154,6 +163,8 @@ public class GameManager : MonoBehaviour {
 	{
 		totalBalls = numberOfBalls;
 		SetupNextRowOfBlocks();
+
+		
 	}
 
 	void EndRound()
@@ -161,6 +172,10 @@ public class GameManager : MonoBehaviour {
 		bIsRoundActive = false;
 		numberOfBallsCollected = 0;
 		roundNumber++;
+
+		Color newColor = Random.ColorHSV( 0, 1, 0.5f, 1, 1, 1, 1, 1 ); ;
+		topBorder.GetComponent<SpriteRenderer>().color = newColor;
+		topBorder.GetComponentInChildren<TextMesh>().text = roundNumber.ToString();
 
 		Block[] survivingBlocks = FindObjectsOfType<Block>();
 		foreach ( Block b in survivingBlocks )
@@ -221,11 +236,22 @@ public class GameManager : MonoBehaviour {
 	{
 		int i = 0;
 		int ballCount = numberOfBalls;
+		Vector3 startPosition = ballLaunchPosition;
 		while ( i < ballCount )
 		{
-			Instantiate( ball, ballLaunchPosition, Quaternion.Euler( dir ) );
+			Instantiate( ball, startPosition, Quaternion.Euler( dir ) );
 			i++;
 			yield return new WaitForSeconds( .08f );
 		}
+	}
+
+	public static void BallNotHittingBox()
+	{
+
+	}
+
+	IEnumerator SpawnBumper()
+	{
+		yield return new WaitForSecondsRealtime( 5 );
 	}
 }
