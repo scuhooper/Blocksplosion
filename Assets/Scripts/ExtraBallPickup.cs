@@ -17,14 +17,11 @@ public class ExtraBallPickup : Pickup {
 	private void OnTriggerEnter2D( Collider2D collision )
 	{
 		if ( collision.gameObject.tag == "Ball" )
+		{
 			FindObjectOfType<GameManager>().IncreaseBallCount();
+			Destroy( gameObject );
+		}
 		else if ( collision.gameObject.tag == "Background" )
-			Destroy( this );
-	}
-
-	private void OnTriggerStay2D( Collider2D collision )
-	{
-		if ( collision.gameObject.tag == "Background" )
 			Destroy( this );
 	}
 }

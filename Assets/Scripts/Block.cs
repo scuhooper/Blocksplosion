@@ -25,13 +25,13 @@ public class Block : MonoBehaviour {
 		
 	}
 
-	private void OnCollisionEnter( Collision collision )
+	private void OnCollisionEnter2D( Collision2D collision )
 	{
 		numberOfHits--;
 		if ( numberOfHits <= 0 )
 		{
-			Instantiate( particles );
-			Destroy( this );
+			Explosion.Explode( transform.position, particles );
+			Destroy( gameObject );
 		}
 		else
 		{

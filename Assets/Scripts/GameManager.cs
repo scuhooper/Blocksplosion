@@ -5,21 +5,27 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 	public int roundNumber = 1;
-	int numberOfBalls = 1;
-	Vector2 ballLaunchPosition = new Vector2( 0, -3.15f );
+	int numberOfBalls = 5;
+	Vector3 ballLaunchPosition;
 	int numberOfBallsCollected;
 	int totalBalls;
 
-	Vector2 touchStart;
-	Vector2 touchEnd;
+	Vector3 touchStart;
+	Vector3 touchEnd;
+	public Vector3 direction;
 
 	TouchPhase tp;
 
+	public GameObject ball;
 	public GameObject[] blocks;
 	public GameObject extraBallPickup;
 
 	float[] rowPositions = new float[8];
 	float topRowY = 2.45f;
+
+	bool bIsRoundActive = false;
+
+	LineRenderer line;
 
 	// Use this for initialization
 	void Start () {
@@ -33,33 +39,86 @@ public class GameManager : MonoBehaviour {
 		rowPositions[ 7 ] = 2.45f;
 
 		StartRound();
+		ballLaunchPosition = new Vector3( 0, -3.15f, -1f );
+
+		line = GetComponent<LineRenderer>();
+		line.enabled = false;
+
+		bIsRoundActive = false;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-		if ( Input.GetMouseButtonDown( 0 ) )
+		if ( !bIsRoundActive )
 		{
-			EndRound();
-			StartRound();
-		}
-		if ( Input.touches.Length > 0 )
-		{
-			if ( Input.touches[ 0 ].phase == TouchPhase.Began )
-				touchStart = Input.touches[ 0 ].rawPosition;
-			else if ( Input.touches[ 0 ].phase == TouchPhase.Ended )
-				touchEnd = Input.touches[ 0 ].rawPosition;
-			else if ( Input.touches[ 0 ].phase == TouchPhase.Moved || Input.touches[ 0 ].phase == TouchPhase.Stationary )
+			if ( Input.GetMouseButtonDown( 0 ) )
 			{
-				touchEnd = Input.touches[ 0 ].rawPosition;
-				Vector2 direction = touchEnd - touchStart;
+				touchStart = Input.mousePosition;
+				touchStart.z = -1f;
+			}
+			if ( Input.GetMouseButton( 0 ) )
+			{
+				touchEnd = Input.mousePosition;
+				touchEnd.z = -1f;
+				direction = touchStart - touchEnd;
 				direction.Normalize();
 				if ( direction.y > .2f )
 				{
-					LineRenderer line = new LineRenderer();
-					line.SetPosition( 0, touchStart );
-					line.SetPosition( 1, touchStart + direction * 4 );
+					line.enabled = true;
+					line.SetPosition( 0, ballLaunchPosition );
+					line.SetPosition( 1, ballLaunchPosition + direction * 4 );
 					line.startColor = Color.white;
 					line.endColor = Color.white;
+				}
+				else
+					line.enabled = false;
+			}
+			if ( Input.GetMouseButtonUp( 0 ) )
+			{
+				line.enabled = false;
+				touchEnd = Input.mousePosition;
+				touchEnd.z = -1f;
+				direction = touchStart - touchEnd;
+				direction.Normalize();
+				if ( direction.y > .2f )
+				{
+					LaunchBalls( direction );
+				}
+			}
+
+			if ( Input.touches.Length > 0 )
+			{
+				if ( Input.touches[ 0 ].phase == TouchPhase.Began )
+				{
+					touchStart = Input.touches[ 0 ].rawPosition;
+					touchStart.z = -1f;
+				}
+				else if ( Input.touches[ 0 ].phase == TouchPhase.Ended )
+				{
+					line.enabled = false;
+					touchEnd = Input.touches[ 0 ].rawPosition;
+					touchEnd.z = -1f;
+					direction = touchStart - touchEnd;
+					direction.Normalize();
+					if ( direction.y > .2f )
+						LaunchBalls( direction );
+				}
+				else if ( Input.touches[ 0 ].phase == TouchPhase.Moved || Input.touches[ 0 ].phase == TouchPhase.Stationary )
+				{
+					touchEnd = Input.touches[ 0 ].rawPosition;
+					touchEnd.z = -1f;
+					direction = touchStart - touchEnd;
+					direction.Normalize();
+					if ( direction.y > .2f )
+					{
+						line.enabled = true;
+						line.SetPosition( 0, ballLaunchPosition );
+						line.SetPosition( 1, ballLaunchPosition + direction * 4 );
+						line.startColor = Color.white;
+						line.endColor = Color.white;
+					}
+					else
+						line.enabled = false;
 				}
 			}
 		}
@@ -82,8 +141,6 @@ public class GameManager : MonoBehaviour {
 		}
 		else if ( collision.gameObject.tag == "Pickup" )
 			Destroy( collision.gameObject );
-		else if ( collision.gameObject.tag == "Block" )
-			EndGame();
 
 		if ( numberOfBallsCollected == totalBalls )
 		{
@@ -101,12 +158,22 @@ public class GameManager : MonoBehaviour {
 
 	void EndRound()
 	{
+		bIsRoundActive = false;
 		numberOfBallsCollected = 0;
 		roundNumber++;
 
 		Block[] survivingBlocks = FindObjectsOfType<Block>();
 		foreach ( Block b in survivingBlocks )
-			b.LowerBlock();
+		{
+			if ( b.transform.position.y == -2.45f )
+			{
+				EndGame();
+				return;
+			}
+		}
+
+		foreach ( Block b in survivingBlocks )
+				b.LowerBlock();
 
 		Pickup[] survivingPickups = FindObjectsOfType<Pickup>();
 		foreach ( Pickup p in survivingPickups )
@@ -138,8 +205,27 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	void EndGame()
+	public void EndGame()
 	{
+		bIsRoundActive = false;
 		SceneManager.LoadScene( "GameScene" );
+	}
+
+	void LaunchBalls( Vector3 dir )
+	{
+		bIsRoundActive = true;
+		StartCoroutine( SpawnBall( dir ) );
+	}
+
+	IEnumerator SpawnBall( Vector3 dir )
+	{
+		int i = 0;
+		int ballCount = numberOfBalls;
+		while ( i < ballCount )
+		{
+			Instantiate( ball, ballLaunchPosition, Quaternion.Euler( dir ) );
+			i++;
+			yield return new WaitForSeconds( .08f );
+		}
 	}
 }
