@@ -14,7 +14,7 @@ public class Pickup : MonoBehaviour {
 		
 	}
 
-	public void LowerPickup()
+	public virtual void LowerPickup()
 	{
 		StartCoroutine( MoveBlockDown() );
 	}

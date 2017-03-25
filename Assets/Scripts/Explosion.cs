@@ -15,7 +15,9 @@ public class Explosion : MonoBehaviour {
 
 	static public void Explode( Vector3 position, GameObject particles )
 	{
-		GameObject explosion = Instantiate( particles, position, Quaternion.Euler( Vector3.zero ) );
+		Vector3 explosionPos = position;
+		explosionPos.z = -1f;
+		GameObject explosion = Instantiate( particles, explosionPos, Quaternion.Euler( Vector3.zero ) );
 		Destroy( explosion, 2f );
 	}
 }

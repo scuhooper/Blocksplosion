@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] blocks;
 	public GameObject extraBallPickup;
 	public GameObject topBorder;
+	public GameObject bumper;
 
 	float[] rowPositions = new float[8];
 	float topRowY = 2.45f;
@@ -27,6 +28,8 @@ public class GameManager : MonoBehaviour {
 	bool bIsRoundActive = false;
 
 	LineRenderer line;
+
+	Coroutine bumperSpawner;
 
 	// Use this for initialization
 	void Start () {
@@ -138,6 +141,7 @@ public class GameManager : MonoBehaviour {
 	{
 		if ( collision.gameObject.tag == "Ball" )
 		{
+			BallNotHittingBox();
 			if ( numberOfBallsCollected == 0 )
 			{
 				ballLaunchPosition = collision.transform.position;
@@ -163,12 +167,11 @@ public class GameManager : MonoBehaviour {
 	{
 		totalBalls = numberOfBalls;
 		SetupNextRowOfBlocks();
-
-		
 	}
 
 	void EndRound()
 	{
+		StopCoroutine( bumperSpawner );
 		bIsRoundActive = false;
 		numberOfBallsCollected = 0;
 		roundNumber++;
@@ -229,6 +232,7 @@ public class GameManager : MonoBehaviour {
 	void LaunchBalls( Vector3 dir )
 	{
 		bIsRoundActive = true;
+		bumperSpawner = StartCoroutine( SpawnBumper() );
 		StartCoroutine( SpawnBall( dir ) );
 	}
 
@@ -245,13 +249,19 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	public static void BallNotHittingBox()
+	public void BallNotHittingBox()
 	{
-
+		StopCoroutine( bumperSpawner );
+		bumperSpawner = StartCoroutine( SpawnBumper() );
 	}
 
 	IEnumerator SpawnBumper()
 	{
 		yield return new WaitForSecondsRealtime( 5 );
+		Vector3 spawnPoint = FindObjectOfType<Ball>().transform.position;
+		spawnPoint.x = 0f;
+		spawnPoint.y -= .1f;
+		Instantiate( bumper, spawnPoint, Quaternion.Euler( Vector3.zero ) );
+		BallNotHittingBox();
 	}
 }
