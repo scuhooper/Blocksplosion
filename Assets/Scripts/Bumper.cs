@@ -22,9 +22,9 @@ public class Bumper : Pickup {
 			if ( !bHasBeenUsed )
 				bHasBeenUsed = true;
 
-			Vector2 newSpeed = new Vector2( Random.Range( 0f, 1f ), Random.Range( .2f, 1f ) );
+			Vector2 newSpeed = new Vector2( Random.Range( -1f, 1f ), Random.Range( .2f, 1f ) );
 			newSpeed.Normalize();
-			collision.gameObject.GetComponent<Rigidbody2D>().velocity = newSpeed * 7;
+			collision.gameObject.GetComponent<Rigidbody2D>().velocity = newSpeed * Ball.speed;
 		}
 	}
 

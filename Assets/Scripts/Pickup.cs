@@ -16,7 +16,10 @@ public class Pickup : MonoBehaviour {
 
 	public virtual void LowerPickup()
 	{
-		StartCoroutine( MoveBlockDown() );
+		if ( transform.position.y == -2.45f )
+			Destroy( gameObject );
+		else
+			StartCoroutine( MoveBlockDown() );
 	}
 
 	IEnumerator MoveBlockDown()

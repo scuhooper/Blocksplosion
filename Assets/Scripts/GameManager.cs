@@ -260,7 +260,7 @@ public class GameManager : MonoBehaviour {
 		yield return new WaitForSecondsRealtime( 5 );
 		Vector3 spawnPoint = FindObjectOfType<Ball>().transform.position;
 		spawnPoint.x = 0f;
-		spawnPoint.y -= .1f;
+		spawnPoint.y -= .2f;
 		Instantiate( bumper, spawnPoint, Quaternion.Euler( Vector3.zero ) );
 		BallNotHittingBox();
 	}
