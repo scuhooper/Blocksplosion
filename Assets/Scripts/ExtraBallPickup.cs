@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ExtraBallPickup : Pickup {
+	public GameObject particles;
 
 	// Use this for initialization
 	void Start () {
@@ -19,6 +20,7 @@ public class ExtraBallPickup : Pickup {
 		if ( collision.gameObject.tag == "Ball" )
 		{
 			FindObjectOfType<GameManager>().IncreaseBallCount();
+			Explosion.Explode( transform.position, particles );
 			Destroy( gameObject );
 		}
 		else if ( collision.gameObject.tag == "Background" )

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour {
 	public GameObject particles;
+	public AudioSource hitSound;
 	int numberOfHits;
 
 	TextMesh text;
@@ -39,6 +40,7 @@ public class Block : MonoBehaviour {
 		{
 			text.text = numberOfHits.ToString();
 			ChangeColor();
+			hitSound.Play();
 		}
 	}
 

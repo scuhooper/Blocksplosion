@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 	public int roundNumber = 1;
-	int numberOfBalls = 5;
+	int numberOfBalls = 1;
 	Vector3 ballLaunchPosition;
 	int numberOfBallsCollected;
 	int totalBalls;
@@ -20,12 +20,15 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] blocks;
 	public GameObject extraBallPickup;
 	public GameObject topBorder;
+	public GameObject bottomBorder;
 	public GameObject bumper;
+	public GameObject menuButtons;
 
 	float[] rowPositions = new float[8];
 	float topRowY = 2.45f;
 
 	bool bIsRoundActive = false;
+	bool bIsGameOver = false;
 
 	LineRenderer line;
 
@@ -49,15 +52,18 @@ public class GameManager : MonoBehaviour {
 		line.enabled = false;
 
 		bIsRoundActive = false;
+		bIsGameOver = false;
 
 		Color newColor = Random.ColorHSV( 0, 1, 0.5f, 1, 1, 1, 1, 1 ); ;
 		topBorder.GetComponent<SpriteRenderer>().color = newColor;
 		topBorder.GetComponentInChildren<TextMesh>().text = roundNumber.ToString();
+		bottomBorder.GetComponent<SpriteRenderer>().color = newColor;
+		menuButtons.SetActive( false );
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if ( !bIsRoundActive )
+		if ( !bIsRoundActive && !bIsGameOver )
 		{
 			if ( Input.GetMouseButtonDown( 0 ) )
 			{
@@ -159,7 +165,8 @@ public class GameManager : MonoBehaviour {
 		{
 			// end current round and start new round
 			EndRound();
-			StartRound();
+			if(!bIsGameOver)
+				StartRound();
 		}
 	}
 
@@ -178,6 +185,7 @@ public class GameManager : MonoBehaviour {
 
 		Color newColor = Random.ColorHSV( 0, 1, 0.5f, 1, 1, 1, 1, 1 ); ;
 		topBorder.GetComponent<SpriteRenderer>().color = newColor;
+		bottomBorder.GetComponent<SpriteRenderer>().color = newColor;
 		topBorder.GetComponentInChildren<TextMesh>().text = roundNumber.ToString();
 
 		Block[] survivingBlocks = FindObjectsOfType<Block>();
@@ -186,6 +194,7 @@ public class GameManager : MonoBehaviour {
 			if ( b.transform.position.y == -2.45f )
 			{
 				EndGame();
+				bIsGameOver = true;
 				return;
 			}
 		}
@@ -225,8 +234,12 @@ public class GameManager : MonoBehaviour {
 
 	public void EndGame()
 	{
-		bIsRoundActive = false;
-		SceneManager.LoadScene( "GameScene" );
+		foreach ( Block b in FindObjectsOfType<Block>() )
+			Destroy( b.gameObject );
+		foreach ( Pickup p in FindObjectsOfType<Pickup>() )
+			Destroy( p.gameObject );
+
+		menuButtons.SetActive( true );
 	}
 
 	void LaunchBalls( Vector3 dir )
@@ -257,11 +270,21 @@ public class GameManager : MonoBehaviour {
 
 	IEnumerator SpawnBumper()
 	{
-		yield return new WaitForSecondsRealtime( 5 );
+		yield return new WaitForSeconds( 5 );
 		Vector3 spawnPoint = FindObjectOfType<Ball>().transform.position;
 		spawnPoint.x = 0f;
 		spawnPoint.y -= .2f;
 		Instantiate( bumper, spawnPoint, Quaternion.Euler( Vector3.zero ) );
 		BallNotHittingBox();
+	}
+
+	public void OnPlayButtonClicked()
+	{
+		SceneManager.LoadScene( "GameScene" );
+	}
+
+	public void OnExitButtonClicked()
+	{
+		Application.Quit();
 	}
 }
