@@ -220,14 +220,16 @@ public class GameManager : MonoBehaviour {
 				float rand = Random.Range( 0f, 1f );
 				if ( rand < .3f )
 					Instantiate( blocks[ 0 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if( rand < .35f )
+				else if ( rand < .35f )
 					Instantiate( blocks[ 1 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if( rand < .4f )
+				else if ( rand < .4f )
 					Instantiate( blocks[ 2 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if( rand < .45f )
+				else if ( rand < .45f )
 					Instantiate( blocks[ 3 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
-				else if( rand < .5f )
+				else if ( rand < .5f )
 					Instantiate( blocks[ 4 ], new Vector3( rowPositions[ i ], topRowY, -1 ), transform.rotation );
+				else if ( rand < .52f )
+					Instantiate( bumper, new Vector3(rowPositions[ i ], topRowY, -1 ), transform.rotation );
 			}
 		}
 	}
