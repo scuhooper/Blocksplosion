@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Ball : MonoBehaviour {
-	public static int speed = 7;
+	public static int speed = 5;
+
+	public bool bIsColliding = false;
 
 	// Use this for initialization
 	void Start () {

@@ -102,24 +102,24 @@ public class GameManager : MonoBehaviour {
 
 			if ( Input.touches.Length > 0 )
 			{
-				if ( Input.touches[ 0 ].phase == TouchPhase.Began )
+				if ( Input.GetTouch( 0 ).phase == TouchPhase.Began )
 				{
-					touchStart = Input.touches[ 0 ].rawPosition;
+					touchStart = Input.GetTouch( 0 ).position;
 					touchStart.z = -1f;
 				}
-				else if ( Input.touches[ 0 ].phase == TouchPhase.Ended )
+				else if ( Input.GetTouch( 0 ).phase == TouchPhase.Ended )
 				{
 					line.enabled = false;
-					touchEnd = Input.touches[ 0 ].rawPosition;
+					touchEnd = Input.GetTouch( 0 ).position;
 					touchEnd.z = -1f;
 					direction = touchStart - touchEnd;
 					direction.Normalize();
 					if ( direction.y > .2f )
 						LaunchBalls( direction );
 				}
-				else if ( Input.touches[ 0 ].phase == TouchPhase.Moved || Input.touches[ 0 ].phase == TouchPhase.Stationary )
+				else if ( Input.GetTouch( 0 ).phase == TouchPhase.Moved || Input.GetTouch( 0 ).phase == TouchPhase.Stationary )
 				{
-					touchEnd = Input.touches[ 0 ].rawPosition;
+					touchEnd = Input.GetTouch(0).position;
 					touchEnd.z = -1f;
 					direction = touchStart - touchEnd;
 					direction.Normalize();
@@ -147,18 +147,24 @@ public class GameManager : MonoBehaviour {
 	{
 		if ( collision.gameObject.tag == "Ball" )
 		{
-			BallNotHittingBox();
-			if ( numberOfBallsCollected == 0 )
+			if ( !collision.GetComponent<Ball>().bIsColliding )
 			{
-				ballLaunchPosition = collision.transform.position;
-				ballLaunchPosition.y = -3.15f;
-				ballLaunchPosition.z = -1f;
-			}
+				collision.GetComponent<Ball>().bIsColliding = true;
+				BallNotHittingBox();
+				if ( numberOfBallsCollected == 0 )
+				{
+					ballLaunchPosition = collision.transform.position;
+					ballLaunchPosition.y = -3.15f;
+					ballLaunchPosition.z = -1f;
+				}
 
-			numberOfBallsCollected++;
-			Destroy( collision.gameObject );
+				numberOfBallsCollected++;
+				Destroy( collision.gameObject );
+			}
 		}
 		else if ( collision.gameObject.tag == "Pickup" )
+			Destroy( collision.gameObject );
+		else
 			Destroy( collision.gameObject );
 
 		if ( numberOfBallsCollected == totalBalls )
@@ -191,7 +197,7 @@ public class GameManager : MonoBehaviour {
 		Block[] survivingBlocks = FindObjectsOfType<Block>();
 		foreach ( Block b in survivingBlocks )
 		{
-			if ( b.transform.position.y == -2.45f )
+			if ( b.transform.position.y <= -2.45f )
 			{
 				EndGame();
 				bIsGameOver = true;
@@ -272,7 +278,7 @@ public class GameManager : MonoBehaviour {
 
 	IEnumerator SpawnBumper()
 	{
-		yield return new WaitForSeconds( 5 );
+		yield return new WaitForSeconds( 10 );
 		Vector3 spawnPoint = FindObjectOfType<Ball>().transform.position;
 		spawnPoint.x = 0f;
 		spawnPoint.y -= .2f;

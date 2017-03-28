@@ -16,7 +16,7 @@ public class Pickup : MonoBehaviour {
 
 	public virtual void LowerPickup()
 	{
-		if ( transform.position.y == -2.45f )
+		if ( transform.position.y <= -2.45f )
 			Destroy( gameObject );
 		else
 			StartCoroutine( MoveBlockDown() );
