@@ -1,3 +1,9 @@
+# Video Highlight
+
+<iframe width="640" height="360" src="https://www.youtube.com/embed/woAqWj_xFZM" frameborder="0" allowfullscreen></iframe>
+<br />
+<hr>
+
 # Prominent Features
 ## Spawning Blocks
 At the start of each round, the game handles spawning a new row of blocks at the top of the screen. In each new row, there must be a spawn of the extra ball pickup. After the spot is determined for the pickup by a random integer representing the index of the 8 available spots, the contents of the other spaces are then determined individually by getting a random float and checking it against the predetermined chances of each kind of block, a bumper, or an empty space. There is 50% chance that a space will contain a block with the square block having the highest chance to spawn, and only a 2% chance for the bumper to spawn in a space.
